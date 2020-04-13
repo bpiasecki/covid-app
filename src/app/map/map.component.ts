@@ -31,14 +31,21 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   public map: Map;
   private subscription = new Subscription();
+  private readonly minFeatureResolution = 0.025;
+  private readonly selectedStyle = new Style({
+    fill: new Fill({ color: '#404040' }),
+    stroke: new Stroke({ width: 3, color: '#ffff00' }),
+    zIndex: 10
+  })
   private vectorSource: VectorSource;
   private featuresWithData: Feature[];
   private colorBreaks: number[];
   private selectHandler = new Select();
+  private animateToExtent = new AnimateToExtentControl();
 
   constructor(private dataService: DataService,
     // private prettyBreaksGenerator: PrettyBreaksRangesGenerator,
-    private jenksBreaksGenerator: JenksDataClassification
+    // private jenksBreaksGenerator: JenksDataClassification
   ) { }
 
   ngAfterViewInit(): void {
@@ -54,14 +61,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.selectHandler.on('select', (selection) => {
       const selectedFeature = selection.selected[0];
       if (selectedFeature) {
-        const selectedStyle = new Style({
-          fill: new Fill({ color: '#404040' }),
-          //yellow color for selected items stroke - testing
-          stroke: new Stroke({ width: 5, color: '#ffff00' }),
-          zIndex: 10
-        })
         this.zoomToFeature(selectedFeature);
-        this.selectHandler.getFeatures().getArray()[0].setStyle(selectedStyle);
+        this.selectHandler.getFeatures().getArray()[0].setStyle(this.selectedStyle);
       }
     });
   }
@@ -77,36 +78,21 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private getClassificationBreaks(dataValues: number[]): number[] {
     const geoStats = new GeoStats();
     geoStats.serie = dataValues;
-    const jenksBreaks = this.jenksBreaksGenerator.getJenksClassification(dataValues, 6);
+    const geometricBreaks = geoStats.getClassGeometricProgression(6);
 
-    return jenksBreaks;
+    return geometricBreaks;
   }
 
   zoomToFeature(feature): void {
     const currentView = this.map.getView();
     const featureGeometry = feature.getGeometry();
     const featureResolution = currentView.getResolutionForExtent(featureGeometry.getExtent())
-    const viewResolution = currentView.getResolution();
     const featureCenter = getCenter(featureGeometry.getExtent());
-    const minFeatureResolution = 0.025
-    let startingTimeout = 300;
 
-    const fitView = () => this.map.getView().fit(featureGeometry, { padding: [50, 50, 50, 50], duration: 1000 });
-    if ((currentView.getZoom() > 7 || featureResolution < 0.0002)) {
-      if (featureResolution > minFeatureResolution)
-        currentView.animate({ resolution: featureResolution, duration: 300 })
-      else if (viewResolution < minFeatureResolution * 1.15)
-        currentView.animate({ resolution: minFeatureResolution, duration: 300 })
-      else
-        startingTimeout = 0
-
-      if (featureResolution < viewResolution || (viewResolution < 500 && featureResolution < minFeatureResolution)) {
-        setTimeout(() => currentView.animate({ center: featureCenter, duration: 1000 }), startingTimeout);
-        setTimeout(fitView, startingTimeout + 1000);
-      } else
-        setTimeout(fitView, startingTimeout);
-    } else
-      fitView();
+    if (featureResolution > this.minFeatureResolution)
+      currentView.animate({ resolution: featureResolution * 1.15, center: featureCenter, duration: 1000 });
+    else
+      currentView.animate({ resolution: this.minFeatureResolution * 1.15, center: featureCenter, duration: 1000 });
   }
 
   private getColor(feature: Feature): string {
@@ -126,7 +112,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         return 'rgba(254,229,217,0.6)';
     } else {
       //yellow color for countries without data - testing
-      return '#ffff00'
+      return 'rgba(254,229,217,0.6)'
     }
   }
 
@@ -152,11 +138,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.selectHandler
       ]),
       controls: defaultControls().extend([
-        new AnimateToExtentControl()
+        this.animateToExtent
       ]),
     });
 
     this.colorPolygonsByValues();
+    this.animateToExtent.initialMapZoom = this.map.getView().getZoom();
   }
 
   private getVectorLayer(): VectorLayer {
@@ -171,7 +158,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const vectorLayer = new VectorLayer({
       source: this.vectorSource,
       style: style,
-      updateWhileAnimating: true
+      updateWhileAnimating: true,
+      updateWhileInteracting: true
     });
 
     return vectorLayer;

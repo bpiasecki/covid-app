@@ -7,11 +7,13 @@
         </mat-form-field>
     </form>
     <ng-scrollbar class="simplebar-layout">
-        <mat-action-list>
-            <mat-list-item matRipple class="country-node" *ngFor="let country of countries"
-                (click)="animateToFeature(country)">
-                {{country.getProperties()["name_long"]}}
-            </mat-list-item>
-        </mat-action-list>
+        <cdk-virtual-scroll-viewport class="full-height-container" itemSize="20" scrollViewport>
+            <mat-action-list class="full-height-container">
+                <mat-list-item matRipple class="country-node" *cdkVirtualFor="let country of countries"
+                    (click)="animateToFeature(country)">
+                    {{country.getProperties()["name_long"]}}
+                </mat-list-item>
+            </mat-action-list>
+        </cdk-virtual-scroll-viewport>
     </ng-scrollbar>
 </div>

@@ -23,6 +23,10 @@ html, body {
   height: calc(100% - 67px)!important;
 }
 
+.full-height-container {
+  height: 100%;
+}
+
 .mat-form-field-appearance-legacy {
   .mat-form-field-label {
     color: rgba(255,255,255,.2)!important;
@@ -43,6 +47,19 @@ html, body {
 .simplebar-scrollbar {
   width: 9px;
   opacity: .5;
+}
+
+.sidenav-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  background: #191919;
+  box-shadow: -5px 0px 20px -2px black;
+  border-right: none!important;
+  .mat-drawer-inner-container {
+      overflow: hidden!important;
+  }
 }
 
 .ol-control {

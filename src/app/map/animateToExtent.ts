@@ -1,6 +1,7 @@
 import Control from 'ol/control/Control';
 
 export class AnimateToExtentControl extends Control {
+    public initialMapZoom: number = 0;
     constructor() {
         super({});
         const button = document.createElement('button');
@@ -18,7 +19,7 @@ export class AnimateToExtentControl extends Control {
     }
 
     click() {
-        this.getMap().getView().animate({ zoom: 0, center:[0, 50], duration: 1500 })
+        this.getMap().getView().animate({ zoom: this.initialMapZoom, center: [0, 50], duration: 1500 })
     }
 
 }
