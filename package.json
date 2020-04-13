@@ -27,7 +27,7 @@
     "@swimlane/ngx-charts": "^13.0.2",
     "@types/jest": "^25.2.1",
     "@types/mocha": "^7.0.2",
-    "geostats": "^1.8.0",
+    "geostats": "^2.0.0",
     "ngx-scrollbar": "^7.2.1-beta.0",
     "ngx-spinner": "^9.0.2",
     "ol": "^6.3.1",

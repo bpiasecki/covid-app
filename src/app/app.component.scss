@@ -16,19 +16,6 @@
     right: 0;
   }
   
-  .sidenav-panel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 220px;
-    background: #191919;
-    box-shadow: -5px 0px 20px -2px black;
-    border-right: none;
-    .mat-drawer-inner-container {
-        overflow: hidden!important;
-    }
-  }
-  
   .header {
     position: fixed;
     top: 0;
@@ -48,5 +35,13 @@
   .divider-tile {
     box-shadow: black 0px 0px 20px -10px;
     background: rgb(32, 32, 32);
+  }
+
+  .charts {
+    margin: 10px;
+    .mat-grid-tile {
+      background: var(--color-accent);
+      border-radius: 5px;
+    }
   }
   
